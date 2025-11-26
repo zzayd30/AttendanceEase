@@ -1,0 +1,161 @@
+﻿@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Log In";
+}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .auth-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .auth-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        border-radius: 18px;
+        padding: 45px 40px;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+        transition: 0.2s ease;
+    }
+
+        .auth-card:hover {
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.15);
+        }
+
+    .auth-title {
+        font-weight: 800;
+        font-size: 30px;
+        text-align: center;
+        margin-bottom: 6px;
+        color: #1e293b;
+    }
+
+    .auth-subtitle {
+        text-align: center;
+        font-size: 15px;
+        color: #64748b;
+        margin-bottom: 28px;
+    }
+
+    .form-floating input {
+        border-radius: 10px;
+        padding: 14px;
+        border: 1px solid #d1d5db;
+    }
+
+        .form-floating input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .2);
+        }
+
+    .btn-primary {
+        background: #2563eb;
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 17px;
+        font-weight: 700;
+        transition: 0.2s;
+    }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+    .auth-links a {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+    .form-check-input {
+        border-radius: 4px;
+    }
+
+    .external-login-btn {
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+
+        <h2 class="auth-title">Welcome Back</h2>
+        <div class="auth-subtitle">Log in to your account</div>
+
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" placeholder="Email" />
+                <label asp-for="Input.Email"></label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" class="form-control" placeholder="Password" />
+                <label asp-for="Input.Password"></label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="Input.RememberMe" />
+                    <label class="form-check-label" asp-for="Input.RememberMe"></label>
+                </div>
+                <div>
+                    <a asp-page="./ForgotPassword">Forgot password?</a>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Log In</button>
+        </form>
+
+        <div class="text-center mt-4 mb-2 auth-links">
+            <span>Don't have an account?</span>
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register</a>
+        </div>
+
+        @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+        {
+            <hr />
+            <div class="text-center mb-2">Or continue with</div>
+
+            <form id="external-account" asp-page="./ExternalLogin"
+                  asp-route-returnUrl="@Model.ReturnUrl" method="post">
+
+                @foreach (var provider in Model.ExternalLogins!)
+                {
+                    <button type="submit"
+                            class="btn btn-outline-dark external-login-btn"
+                            name="provider"
+                            value="@provider.Name">
+                        @provider.DisplayName
+                    </button>
+                }
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
