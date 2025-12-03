@@ -1,0 +1,223 @@
+@{
+    ViewData["Title"] = "Student Attendance Report";
+    var reportData = ViewBag.ReportData as dynamic;
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-badge me-2"></i>
+                    Student Attendance Report
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="StudentAttendance" method="get">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Student</label>
+                            <select name="studentId" class="form-select" required>
+                                <option value="">-- Select Student --</option>
+                                @if (ViewBag.Students != null)
+                                {
+                                    @foreach (var student in ViewBag.Students)
+                                    {
+                                        <option value="@student.Value" selected="@(student.Value == ViewBag.SelectedStudentId?.ToString())">
+                                            @student.Text
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">From Date</label>
+                            <input type="date" name="fromDate" class="form-control" value="@ViewBag.FromDate" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">To Date</label>
+                            <input type="date" name="toDate" class="form-control" value="@ViewBag.ToDate" />
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-search me-1"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (reportData != null)
+        {
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <h5>@reportData.StudentName</h5>
+                            <p class="text-muted mb-0">
+                                <strong>Roll Number:</strong> @reportData.RollNumber<br />
+                                <strong>Section:</strong> @reportData.SectionName<br />
+                                <strong>Period:</strong> @reportData.FromDate.ToString("MMM dd, yyyy") to @reportData.ToDate.ToString("MMM dd, yyyy")
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="@Url.Action("GeneratePDF", new { studentId = ViewBag.SelectedStudentId, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate })" 
+                               class="btn btn-danger">
+                                <i class="bi bi-file-pdf me-1"></i> Download PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Overall Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h2 class="text-primary">@reportData.TotalClasses</h2>
+                                    <p class="mb-0">Total Classes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h2>@reportData.PresentCount</h2>
+                                    <p class="mb-0">Present</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body text-center">
+                                    <h2>@reportData.AbsentCount</h2>
+                                    <p class="mb-0">Absent</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h2>@reportData.OverallPercentage.ToString("F1")%</h2>
+                                    <p class="mb-0">Overall %</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course-wise Attendance -->
+                    @if (reportData.CourseData != null && reportData.CourseData.Count > 0)
+                    {
+                        <h5 class="mb-3">Course-wise Attendance</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Course Name</th>
+                                        <th>Classes</th>
+                                        <th>Present</th>
+                                        <th>Absent</th>
+                                        <th>Late</th>
+                                        <th>Attendance %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var course in reportData.CourseData)
+                                    {
+                                        var percentage = course.AttendancePercentage;
+                                        var badgeClass = percentage >= 75 ? "bg-success" : (percentage >= 50 ? "bg-warning" : "bg-danger");
+                                        
+                                        <tr>
+                                            <td><strong>@course.CourseCode</strong></td>
+                                            <td>@course.CourseName</td>
+                                            <td>@course.TotalClasses</td>
+                                            <td><span class="badge bg-success">@course.PresentCount</span></td>
+                                            <td><span class="badge bg-danger">@course.AbsentCount</span></td>
+                                            <td><span class="badge bg-warning">@course.LateCount</span></td>
+                                            <td>
+                                                <div class="progress" style="height: 25px;">
+                                                    <div class="progress-bar @badgeClass" 
+                                                         role="progressbar" 
+                                                         style="width: @(percentage)%"
+                                                         aria-valuenow="@percentage" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                        @percentage.ToString("F1")%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <!-- Recent Attendance Records -->
+                    @if (reportData.RecentAttendance != null && reportData.RecentAttendance.Count > 0)
+                    {
+                        <h5 class="mb-3 mt-4">Recent Attendance Records</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Course</th>
+                                        <th>Status</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var record in reportData.RecentAttendance)
+                                    {
+                                        <tr>
+                                            <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                            <td>
+                                                <strong>@record.CourseName</strong><br />
+                                                <small class="text-muted">@record.CourseCode</small>
+                                            </td>
+                                            <td>
+                                                @if (record.Status == "Present")
+                                                {
+                                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Present</span>
+                                                }
+                                                else if (record.Status == "Absent")
+                                                {
+                                                    <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Absent</span>
+                                                }
+                                                else if (record.Status == "Late")
+                                                {
+                                                    <span class="badge bg-warning"><i class="bi bi-clock"></i> Late</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info"><i class="bi bi-info-circle"></i> Excused</span>
+                                                }
+                                            </td>
+                                            <td>@(string.IsNullOrEmpty(record.Remarks) ? "-" : record.Remarks)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                Select a student and date range to generate the report.
+            </div>
+        }
+
+        <div class="text-center">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Reports
+            </a>
+        </div>
+    </div>
+</div>

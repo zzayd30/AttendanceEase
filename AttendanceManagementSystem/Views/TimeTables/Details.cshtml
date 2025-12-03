@@ -1,0 +1,94 @@
+@model AttendanceManagementSystem.Models.TimeTable
+
+@{
+    ViewData["Title"] = "Timetable Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Timetable Entry Details
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <dl class="row">
+                    <dt class="col-sm-3">Day:</dt>
+                    <dd class="col-sm-9">
+                        <h5>@Model.DayOfWeek</h5>
+                    </dd>
+                    
+                    <dt class="col-sm-3">Time Slot:</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-info" style="font-size: 1rem;">
+                            @Model.StartTime.ToString(@"hh\:mm tt") - @Model.EndTime.ToString(@"hh\:mm tt")
+                        </span>
+                    </dd>
+                    
+                    <dt class="col-sm-3">Course:</dt>
+                    <dd class="col-sm-9">
+                        <h5>@Model.Course?.CourseName</h5>
+                        <span class="badge bg-secondary">@Model.Course?.CourseCode</span>
+                        <span class="badge bg-info ms-2">@Model.Course?.CreditHours Credit Hours</span>
+                    </dd>
+                    
+                    <dt class="col-sm-3">Section:</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-primary" style="font-size: 1rem;">
+                            @Model.Section?.Batch?.Name - @Model.Section?.Name
+                        </span>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="bi bi-people-fill me-1"></i>
+                                @(Model.Section?.Students?.Count ?? 0) students enrolled
+                            </small>
+                        </div>
+                    </dd>
+                    
+                    <dt class="col-sm-3">Teacher:</dt>
+                    <dd class="col-sm-9">
+                        <strong>@Model.Teacher?.Name</strong>
+                        @if (!string.IsNullOrEmpty(Model.Teacher?.Email))
+                        {
+                            <br />
+                            <small>
+                                <a href="mailto:@Model.Teacher.Email">@Model.Teacher.Email</a>
+                            </small>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-3">Room Number:</dt>
+                    <dd class="col-sm-9">
+                        @if (!string.IsNullOrEmpty(Model.RoomNumber))
+                        {
+                            <span class="badge bg-success" style="font-size: 1rem;">@Model.RoomNumber</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not assigned</span>
+                        }
+                    </dd>
+                </dl>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
+                    </a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2">
+                                <i class="bi bi-pencil me-1"></i> Edit
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i> Delete
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

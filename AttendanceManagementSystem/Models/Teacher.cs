@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace AttendanceManagementSystem.Models
 {
-    public class Student
+    public class Teacher
     {
         public int Id { get; set; }
 
@@ -11,25 +12,22 @@ namespace AttendanceManagementSystem.Models
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        [Display(Name = "Roll Number")]
-        public string RollNumber { get; set; } = string.Empty;
-
-        [Required]
         [EmailAddress]
-        public string? Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Phone]
         [Display(Name = "Phone Number")]
         public string? PhoneNumber { get; set; }
 
-        [Display(Name = "Address")]
-        public string? Address { get; set; }
+        [Display(Name = "Employee ID")]
+        public string? EmployeeId { get; set; }
+
+        [Display(Name = "Department")]
+        public string? Department { get; set; }
 
         // Link to Identity User
         public string? UserId { get; set; }
 
-        [Required]
-        public int SectionId { get; set; }
-        public Section? Section { get; set; }
+        public ICollection<TimeTable>? TimeTables { get; set; }
     }
 }

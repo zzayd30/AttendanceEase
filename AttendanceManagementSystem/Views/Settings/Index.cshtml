@@ -1,0 +1,158 @@
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<h2 class="mb-4">
+    <i class="bi bi-gear-fill text-primary me-2"></i>
+    Settings
+</h2>
+
+<div class="row">
+    <!-- Change Password -->
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-shield-lock text-primary" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="text-center mb-3">Change Password</h4>
+                <p class="text-muted text-center mb-4">
+                    Update your account password to keep your account secure.
+                </p>
+                <div class="text-center">
+                    <a asp-action="ChangePassword" class="btn btn-primary btn-lg">
+                        <i class="bi bi-key me-2"></i>
+                        Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Settings -->
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-circle text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="text-center mb-3">Profile Settings</h4>
+                <p class="text-muted text-center mb-4">
+                    Update your profile information and preferences.
+                </p>
+                <div class="text-center">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <span class="text-muted">Admin profile management coming soon</span>
+                    }
+                    else if (User.IsInRole("Teacher"))
+                    {
+                        <a asp-controller="Teachers" asp-action="Edit" class="btn btn-success btn-lg">
+                            <i class="bi bi-pencil me-2"></i>
+                            Edit Profile
+                        </a>
+                    }
+                    else if (User.IsInRole("Student"))
+                    {
+                        <a asp-controller="Students" asp-action="Edit" class="btn btn-success btn-lg">
+                            <i class="bi bi-pencil me-2"></i>
+                            Edit Profile
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Information -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Account Information
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Username:</dt>
+                    <dd class="col-sm-9">@User.Identity?.Name</dd>
+                    
+                    <dt class="col-sm-3">Role:</dt>
+                    <dd class="col-sm-9">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <span class="badge bg-danger">Administrator</span>
+                        }
+                        else if (User.IsInRole("Teacher"))
+                        {
+                            <span class="badge bg-primary">Teacher</span>
+                        }
+                        else if (User.IsInRole("Student"))
+                        {
+                            <span class="badge bg-success">Student</span>
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-3">Account Status:</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-success">Active</span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-square me-2"></i>
+                    System Information
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Application:</dt>
+                    <dd class="col-sm-9">AttendanceEase v1.0</dd>
+                    
+                    <dt class="col-sm-3">Framework:</dt>
+                    <dd class="col-sm-9">.NET 8</dd>
+                    
+                    <dt class="col-sm-3">Last Updated:</dt>
+                    <dd class="col-sm-9">@DateTime.Now.ToString("MMMM yyyy")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help & Support -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body p-4 text-center">
+                <h5 class="mb-3">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Need Help?
+                </h5>
+                <p class="text-muted mb-3">
+                    If you have any questions or need assistance, please contact your system administrator.
+                </p>
+                <div class="btn-group" role="group">
+                    <a asp-controller="Dashboard" asp-action="AdminDashboard" class="btn btn-outline-primary">
+                        <i class="bi bi-house me-1"></i> Dashboard
+                    </a>
+                    <a href="mailto:support@attendanceease.com" class="btn btn-outline-success">
+                        <i class="bi bi-envelope me-1"></i> Email Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

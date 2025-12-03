@@ -1,7 +1,7 @@
-﻿@model AttendanceManagementSystem.Models.Student
+@model AttendanceManagementSystem.Models.Teacher
 
 @{
-    ViewData["Title"] = "Delete Student";
+    ViewData["Title"] = "Delete Teacher";
 }
 
 <div class="row justify-content-center">
@@ -10,23 +10,30 @@
             <div class="card-header bg-danger text-white">
                 <h4 class="mb-0">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-                    Delete Student
+                    Delete Teacher
                 </h4>
             </div>
             <div class="card-body p-4">
                 <div class="alert alert-warning">
                     <i class="bi bi-exclamation-circle me-2"></i>
-                    <strong>Warning!</strong> Are you sure you want to delete this student? This will also delete the associated user account and all attendance records. This action cannot be undone.
+                    <strong>Warning!</strong> Are you sure you want to delete this teacher? This will also delete the associated user account. This action cannot be undone.
                 </div>
 
-                <h5 class="mb-3">Student Details:</h5>
+                <h5 class="mb-3">Teacher Details:</h5>
                 <dl class="row">
                     <dt class="col-sm-4">Name:</dt>
                     <dd class="col-sm-8"><strong>@Model.Name</strong></dd>
                     
-                    <dt class="col-sm-4">Roll Number:</dt>
+                    <dt class="col-sm-4">Employee ID:</dt>
                     <dd class="col-sm-8">
-                        <span class="badge bg-primary">@Model.RollNumber</span>
+                        @if (!string.IsNullOrEmpty(Model.EmployeeId))
+                        {
+                            <span class="badge bg-info">@Model.EmployeeId</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">N/A</span>
+                        }
                     </dd>
                     
                     <dt class="col-sm-4">Email:</dt>
@@ -35,16 +42,8 @@
                     <dt class="col-sm-4">Phone:</dt>
                     <dd class="col-sm-8">@(Model.PhoneNumber ?? "N/A")</dd>
                     
-                    <dt class="col-sm-4">Section:</dt>
-                    <dd class="col-sm-8">
-                        @if (Model.Section != null)
-                        {
-                            <span class="badge bg-info">@Model.Section.Batch?.Name - @Model.Section.Name</span>
-                        }
-                    </dd>
-                    
-                    <dt class="col-sm-4">Address:</dt>
-                    <dd class="col-sm-8">@(Model.Address ?? "N/A")</dd>
+                    <dt class="col-sm-4">Department:</dt>
+                    <dd class="col-sm-8">@(Model.Department ?? "N/A")</dd>
                 </dl>
 
                 <form asp-action="Delete" method="post">

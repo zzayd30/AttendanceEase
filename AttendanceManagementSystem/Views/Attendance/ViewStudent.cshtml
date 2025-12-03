@@ -1,0 +1,176 @@
+@using AttendanceManagementSystem.Models
+@{
+    ViewData["Title"] = "My Attendance";
+    var student = ViewBag.Student as Student;
+    var attendanceRecords = ViewBag.AttendanceRecords as List<Attendance>;
+    var courseStats = ViewBag.CourseStats as IEnumerable<dynamic>;
+}
+
+<h2 class="mb-4">
+    <i class="bi bi-person-circle text-primary me-2"></i>
+    My Attendance Records
+</h2>
+
+<!-- Student Info -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h5>@student?.Name</h5>
+                <p class="mb-0">
+                    <strong>Roll Number:</strong> @student?.RollNumber<br />
+                    <strong>Section:</strong> @student?.Section?.Batch?.Name - @student?.Section?.Name
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a asp-controller="Reports" asp-action="GeneratePDF" asp-route-studentId="@student?.Id" class="btn btn-primary">
+                    <i class="bi bi-download me-1"></i> Download Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Course-wise Statistics -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0">
+            <i class="bi bi-bar-chart text-info me-2"></i>
+            Course-wise Attendance
+        </h5>
+    </div>
+    <div class="card-body">
+        @if (courseStats != null && courseStats.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Course</th>
+                            <th>Total Classes</th>
+                            <th>Present</th>
+                            <th>Absent</th>
+                            <th>Late</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var stat in courseStats)
+                        {
+                            var percentage = stat.Percentage;
+                            var badgeClass = percentage >= 75 ? "bg-success" : (percentage >= 50 ? "bg-warning" : "bg-danger");
+                            
+                            <tr>
+                                <td><strong>@stat.CourseName</strong></td>
+                                <td>@stat.TotalClasses</td>
+                                <td>
+                                    <span class="badge bg-success">@stat.PresentCount</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-danger">@stat.AbsentCount</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning">@stat.LateCount</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                                            <div class="progress-bar @badgeClass" 
+                                                 role="progressbar" 
+                                                 style="width: @(percentage)%"
+                                                 aria-valuenow="@percentage" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                @percentage.ToString("F1")%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                No attendance records found.
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Recent Attendance Records -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0">
+            <i class="bi bi-clock-history text-primary me-2"></i>
+            Recent Attendance
+        </h5>
+    </div>
+    <div class="card-body">
+        @if (attendanceRecords != null && attendanceRecords.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Course</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var record in attendanceRecords)
+                        {
+                            <tr>
+                                <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <strong>@record.Course?.CourseName</strong>
+                                    <br />
+                                    <small class="text-muted">@record.Course?.CourseCode</small>
+                                </td>
+                                <td>
+                                    @switch (record.Status)
+                                    {
+                                        case AttendanceStatus.Present:
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Present
+                                            </span>
+                                            break;
+                                        case AttendanceStatus.Absent:
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-circle"></i> Absent
+                                            </span>
+                                            break;
+                                        case AttendanceStatus.Late:
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-clock"></i> Late
+                                            </span>
+                                            break;
+                                        case AttendanceStatus.Excused:
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-info-circle"></i> Excused
+                                            </span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@(string.IsNullOrEmpty(record.Remarks) ? "-" : record.Remarks)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                No recent attendance records.
+            </div>
+        }
+    </div>
+</div>

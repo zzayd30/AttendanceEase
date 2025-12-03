@@ -1,0 +1,98 @@
+@model AttendanceManagementSystem.Models.TimeTable
+
+@{
+    ViewData["Title"] = "Edit Timetable";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>
+                    Edit Timetable Entry
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DayOfWeek" class="form-label">Day of Week</label>
+                            <select asp-for="DayOfWeek" class="form-select">
+                                <option value="0">Sunday</option>
+                                <option value="1">Monday</option>
+                                <option value="2">Tuesday</option>
+                                <option value="3">Wednesday</option>
+                                <option value="4">Thursday</option>
+                                <option value="5">Friday</option>
+                                <option value="6">Saturday</option>
+                            </select>
+                            <span asp-validation-for="DayOfWeek" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="RoomNumber" class="form-label">Room Number</label>
+                            <input asp-for="RoomNumber" class="form-control" />
+                            <span asp-validation-for="RoomNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="StartTime" class="form-label">Start Time</label>
+                            <input asp-for="StartTime" class="form-control" type="time" />
+                            <span asp-validation-for="StartTime" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="EndTime" class="form-label">End Time</label>
+                            <input asp-for="EndTime" class="form-control" type="time" />
+                            <span asp-validation-for="EndTime" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CourseId" class="form-label">Course</label>
+                        <select asp-for="CourseId" class="form-select" asp-items="ViewBag.CourseId">
+                            <option value="">-- Select Course --</option>
+                        </select>
+                        <span asp-validation-for="CourseId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SectionId" class="form-label">Section</label>
+                        <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionId">
+                            <option value="">-- Select Section --</option>
+                        </select>
+                        <span asp-validation-for="SectionId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TeacherId" class="form-label">Teacher</label>
+                        <select asp-for="TeacherId" class="form-select" asp-items="ViewBag.TeacherId">
+                            <option value="">-- Select Teacher --</option>
+                        </select>
+                        <span asp-validation-for="TeacherId" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

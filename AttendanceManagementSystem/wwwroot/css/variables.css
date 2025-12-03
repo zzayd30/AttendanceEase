@@ -1,0 +1,147 @@
+/* ============================================
+   Color Variables - Attendance Management System
+   Professional Design System
+   ============================================ */
+
+:root {
+    /* Primary Brand Colors - Professional Blue Palette */
+    --primary-color: #0f172a;
+    --primary-hover: #1e293b;
+    --primary-light: #334155;
+    --primary-lighter: #475569;
+    --primary-accent: #3b82f6;
+    --primary-accent-hover: #2563eb;
+
+    /* Secondary Colors - Elegant Purple Accent */
+    --secondary-color: #6366f1;
+    --secondary-hover: #4f46e5;
+    --secondary-light: #818cf8;
+    --secondary-lighter: #a5b4fc;
+
+    /* Background Colors - Clean & Professional */
+    --bg-main: #f8fafc;
+    --bg-secondary: #f1f5f9;
+    --bg-white: #ffffff;
+    --bg-card: #ffffff;
+    --bg-hover: #f8fafc;
+    --bg-gradient-start: #f8fafc;
+    --bg-gradient-end: #e2e8f0;
+
+    /* Sidebar Colors - Dark Professional */
+    --sidebar-bg: #0f172a;
+    --sidebar-bg-gradient-start: #0f172a;
+    --sidebar-bg-gradient-end: #1e293b;
+    --sidebar-hover: #1e293b;
+    --sidebar-active: #334155;
+    --sidebar-text: #cbd5e1;
+    --sidebar-text-hover: #ffffff;
+    --sidebar-text-active: #ffffff;
+    --sidebar-border: rgba(148, 163, 184, 0.1);
+    --sidebar-accent: #3b82f6;
+
+    /* Text Colors - Professional Typography */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --text-light: #94a3b8;
+    --text-white: #ffffff;
+    --text-muted: #94a3b8;
+
+    /* Border Colors */
+    --border-light: #e2e8f0;
+    --border-medium: #cbd5e1;
+    --border-dark: #94a3b8;
+    --border-focus: #3b82f6;
+
+    /* Status Colors - Professional Palette */
+    --success: #059669;
+    --success-light: #d1fae5;
+    --success-hover: #047857;
+    
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+    --danger-hover: #b91c1c;
+    
+    --warning: #d97706;
+    --warning-light: #fef3c7;
+    --warning-hover: #b45309;
+    
+    --info: #0284c7;
+    --info-light: #e0f2fe;
+    --info-hover: #0369a1;
+
+    /* Shadow System - Subtle & Professional */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+
+    /* Focus States */
+    --focus-ring: rgba(59, 130, 246, 0.15);
+    --focus-ring-width: 3px;
+    --focus-border: #3b82f6;
+
+    /* Layout Dimensions */
+    --sidebar-width: 280px;
+    --topbar-height: 72px;
+    --content-max-width: 1400px;
+    
+    /* Border Radius - Modern & Clean */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-full: 9999px;
+
+    /* Spacing System */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+
+    /* Transitions - Smooth & Professional */
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Typography - Professional Font System */
+    --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-family-mono: "JetBrains Mono", "Fira Code", Consolas, Monaco, "Courier New", monospace;
+    
+    --font-size-xs: 0.75rem;      /* 12px */
+    --font-size-sm: 0.875rem;     /* 14px */
+    --font-size-base: 1rem;       /* 16px */
+    --font-size-lg: 1.125rem;     /* 18px */
+    --font-size-xl: 1.25rem;      /* 20px */
+    --font-size-2xl: 1.5rem;      /* 24px */
+    --font-size-3xl: 1.875rem;    /* 30px */
+    --font-size-4xl: 2.25rem;     /* 36px */
+    
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    
+    --line-height-tight: 1.25;
+    --line-height-snug: 1.375;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.625;
+    --line-height-loose: 2;
+
+    /* Letter Spacing */
+    --tracking-tighter: -0.05em;
+    --tracking-tight: -0.025em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.025em;
+    --tracking-wider: 0.05em;
+    --tracking-widest: 0.1em;
+}

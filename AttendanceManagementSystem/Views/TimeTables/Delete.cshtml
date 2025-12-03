@@ -1,0 +1,76 @@
+@model AttendanceManagementSystem.Models.TimeTable
+
+@{
+    ViewData["Title"] = "Delete Timetable";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Delete Timetable Entry
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>Warning!</strong> Are you sure you want to delete this timetable entry? This action cannot be undone.
+                </div>
+
+                <h5 class="mb-3">Timetable Details:</h5>
+                <dl class="row">
+                    <dt class="col-sm-4">Day:</dt>
+                    <dd class="col-sm-8"><strong>@Model.DayOfWeek</strong></dd>
+                    
+                    <dt class="col-sm-4">Time:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-info">
+                            @Model.StartTime.ToString(@"hh\:mm tt") - @Model.EndTime.ToString(@"hh\:mm tt")
+                        </span>
+                    </dd>
+                    
+                    <dt class="col-sm-4">Course:</dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.Course?.CourseName</strong> (@Model.Course?.CourseCode)
+                    </dd>
+                    
+                    <dt class="col-sm-4">Section:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-primary">
+                            @Model.Section?.Batch?.Name - @Model.Section?.Name
+                        </span>
+                    </dd>
+                    
+                    <dt class="col-sm-4">Teacher:</dt>
+                    <dd class="col-sm-8">@Model.Teacher?.Name</dd>
+                    
+                    <dt class="col-sm-4">Room:</dt>
+                    <dd class="col-sm-8">
+                        @if (!string.IsNullOrEmpty(Model.RoomNumber))
+                        {
+                            <span class="badge bg-success">@Model.RoomNumber</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not assigned</span>
+                        }
+                    </dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i> Confirm Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

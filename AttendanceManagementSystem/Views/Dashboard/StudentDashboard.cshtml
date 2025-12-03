@@ -1,0 +1,210 @@
+@using AttendanceManagementSystem.Models
+@{
+    ViewData["Title"] = "Student Dashboard";
+    var student = ViewBag.Student as Student;
+    var attendanceRecords = ViewBag.AttendanceRecords as List<Attendance>;
+    var attendanceStats = ViewBag.AttendanceStats as IEnumerable<dynamic>;
+    var totalClasses = ViewBag.TotalClasses as int? ?? 0;
+    var presentCount = ViewBag.PresentCount as int? ?? 0;
+    var attendancePercentage = totalClasses > 0 ? (double)presentCount / totalClasses * 100 : 0;
+}
+
+<!-- Student Info Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="mb-2">
+                            <i class="bi bi-person-circle me-2"></i>
+                            Welcome, @student?.Name!
+                        </h3>
+                        <p class="mb-1"><strong>Roll Number:</strong> @student?.RollNumber</p>
+                        <p class="mb-1"><strong>Section:</strong> @student?.Section?.Batch?.Name - @student?.Section?.Name</p>
+                        <p class="mb-0"><strong>Email:</strong> @student?.Email</p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <div class="d-inline-block bg-white bg-opacity-25 rounded p-3">
+                            <h2 class="mb-0">@attendancePercentage.ToString("F1")%</h2>
+                            <small>Overall Attendance</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="bi bi-calendar-check text-primary" style="font-size: 2.5rem;"></i>
+                </div>
+                <h3 class="mb-0">@totalClasses</h3>
+                <p class="text-muted mb-0">Total Classes</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+                </div>
+                <h3 class="mb-0">@presentCount</h3>
+                <p class="text-muted mb-0">Present</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="bi bi-x-circle text-danger" style="font-size: 2.5rem;"></i>
+                </div>
+                <h3 class="mb-0">@(attendanceStats?.FirstOrDefault(s => s.Status == AttendanceStatus.Absent)?.Count ?? 0)</h3>
+                <p class="text-muted mb-0">Absent</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="bi bi-clock text-warning" style="font-size: 2.5rem;"></i>
+                </div>
+                <h3 class="mb-0">@(attendanceStats?.FirstOrDefault(s => s.Status == AttendanceStatus.Late)?.Count ?? 0)</h3>
+                <p class="text-muted mb-0">Late</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center p-4">
+                <i class="bi bi-eye text-primary mb-3" style="font-size: 3rem;"></i>
+                <h5 class="card-title">View Attendance</h5>
+                <p class="card-text text-muted">Check your detailed attendance records</p>
+                <a asp-controller="Attendance" asp-action="ViewStudent" class="btn btn-primary">
+                    <i class="bi bi-arrow-right-circle"></i>
+                    View Details
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center p-4">
+                <i class="bi bi-file-earmark-pdf text-danger mb-3" style="font-size: 3rem;"></i>
+                <h5 class="card-title">Generate Report</h5>
+                <p class="card-text text-muted">Download your attendance report</p>
+                <a asp-controller="Reports" asp-action="GeneratePDF" asp-route-studentId="@student?.Id" class="btn btn-danger">
+                    <i class="bi bi-download"></i>
+                    Download Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Attendance -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history text-info me-2"></i>
+                    Recent Attendance Records
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (attendanceRecords != null && attendanceRecords.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Course</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var record in attendanceRecords)
+                                {
+                                    <tr>
+                                        <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <strong>@record.Course?.CourseName</strong>
+                                            <br />
+                                            <small class="text-muted">@record.Course?.CourseCode</small>
+                                        </td>
+                                        <td>
+                                            @switch (record.Status)
+                                            {
+                                                case AttendanceStatus.Present:
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i> Present
+                                                    </span>
+                                                    break;
+                                                case AttendanceStatus.Absent:
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle"></i> Absent
+                                                    </span>
+                                                    break;
+                                                case AttendanceStatus.Late:
+                                                    <span class="badge bg-warning">
+                                                        <i class="bi bi-clock"></i> Late
+                                                    </span>
+                                                    break;
+                                                case AttendanceStatus.Excused:
+                                                    <span class="badge bg-info">
+                                                        <i class="bi bi-info-circle"></i> Excused
+                                                    </span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>@(string.IsNullOrEmpty(record.Remarks) ? "-" : record.Remarks)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                        <p class="text-muted mt-3 mb-0">No attendance records found</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            console.log('Student Dashboard Loaded');
+            
+            // Add animation to cards
+            $('.card').hover(
+                function() { $(this).addClass('shadow-lg'); },
+                function() { $(this).removeClass('shadow-lg'); }
+            );
+        });
+    </script>
+}
