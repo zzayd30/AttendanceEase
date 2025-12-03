@@ -1,4 +1,4 @@
-/* ============================================
+sidebar/* ============================================
    Main Site Styles - Attendance Management System
    Professional Design System
    ============================================ */
@@ -44,14 +44,17 @@ body {
     width: var(--sidebar-width);
     background: linear-gradient(180deg, var(--sidebar-bg-gradient-start) 0%, var(--sidebar-bg-gradient-end) 100%);
     color: var(--text-white);
-    min-height: 100vh;
+    height: 100vh;
     position: fixed;
     left: 0;
     top: 0;
-    padding: var(--space-lg) 0;
+    padding: var(--space-lg) 0 0 0;
     z-index: 1000;
     transition: all var(--transition-normal);
     box-shadow: var(--shadow-xl);
+    overflow: scroll;
+    -ms-overflow-style: none; /* IE & Edge */
+    scrollbar-width: none; /* Firefox */
 }
 
 .sidebar .brand {
@@ -78,8 +81,19 @@ body {
     background-clip: text;
 }
 
-.sidebar .nav-section {
+/*.sidebar .nav-section {
     margin-bottom: var(--space-lg);
+}*/
+
+.sidebar .nav-header {
+    color: var(--text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    padding: var(--space-sm) var(--space-xl) var(--space-xs);
+    margin-bottom: var(--space-sm);
+    opacity: 0.7;
 }
 
 .sidebar .nav-link {

@@ -31,42 +31,101 @@
             <span>AttendanceEase</span>
         </div>
 
+        <!-- Main Dashboard -->
         <div class="nav-section">
-            <a asp-area="" asp-controller="Dashboard" asp-action="Index" class="nav-link active" aria-current="page">
+            @{
+                var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+                var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+                var isDashboardActive = currentController == "Dashboard" || 
+                                      (currentController == "Home" && currentAction == "Index") ||
+                                      (currentAction != null && currentAction.Contains("Dashboard"));
+            }
+            
+            <a asp-area="" asp-controller="Dashboard" asp-action="Index" 
+               class="nav-link @(isDashboardActive ? "active" : "")" 
+               aria-current="@(isDashboardActive ? "page" : "false")">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
-            </a>
-
-            <a asp-area="" asp-controller="Students" asp-action="Index" class="nav-link">
-                <i class="bi bi-people-fill"></i>
-                <span>Students</span>
-            </a>
-
-            <a asp-area="" asp-controller="Attendance" asp-action="Index" class="nav-link">
-                <i class="bi bi-calendar-check"></i>
-                <span>Attendance</span>
-            </a>
-
-            <a asp-area="" asp-controller="Reports" asp-action="Index" class="nav-link">
-                <i class="bi bi-bar-chart-fill"></i>
-                <span>Reports</span>
-            </a>
-
-            <a asp-area="" asp-controller="Teachers" asp-action="Index" class="nav-link">
-                <i class="bi bi-person-badge-fill"></i>
-                <span>Teachers</span>
-            </a>
-
-            <a asp-area="" asp-controller="Courses" asp-action="Index" class="nav-link">
-                <i class="bi bi-book-half"></i>
-                <span>Courses</span>
             </a>
         </div>
 
         <hr />
 
+        <!-- Academic Management -->
         <div class="nav-section">
-            <a asp-area="" asp-controller="Settings" asp-action="Index" class="nav-link">
+            <small class="nav-header">Academic Management</small>
+            
+            <a asp-area="" asp-controller="Batches" asp-action="Index" 
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Batches" ? "active" : "")">
+                <i class="bi bi-folder2-open"></i>
+                <span>Batches</span>
+            </a>
+
+            <a asp-area="" asp-controller="Sections" asp-action="Index" 
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Sections" ? "active" : "")">
+                <i class="bi bi-layout-split"></i>
+                <span>Sections</span>
+            </a>
+
+            <a asp-area="" asp-controller="Courses" asp-action="Index" 
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Courses" ? "active" : "")">
+                <i class="bi bi-book-half"></i>
+                <span>Courses</span>
+            </a>
+
+            <a asp-area="" asp-controller="TimeTables" asp-action="Index" 
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "TimeTables" ? "active" : "")">
+                <i class="bi bi-calendar-week"></i>
+                <span>Timetables</span>
+            </a>
+        </div>
+
+        <hr />
+
+        <!-- People Management -->
+        <div class="nav-section">
+            <small class="nav-header">People Management</small>
+            
+            <a asp-area="" asp-controller="Teachers" asp-action="Index" 
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teachers" ? "active" : "")">
+                <i class="bi bi-person-badge-fill"></i>
+                <span>Teachers</span>
+            </a>
+
+            <a asp-area="" asp-controller="Students" asp-action="Index" 
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Students" ? "active" : "")">
+                <i class="bi bi-people-fill"></i>
+                <span>Students</span>
+            </a>
+        </div>
+
+        <hr />
+
+        <!-- Attendance & Reports -->
+        <div class="nav-section">
+            <small class="nav-header">Attendance & Reports</small>
+            
+            <a asp-area="" asp-controller="Attendance" asp-action="Index" 
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Attendance" ? "active" : "")">
+                <i class="bi bi-calendar-check"></i>
+                <span>Attendance</span>
+            </a>
+
+            <a asp-area="" asp-controller="Reports" asp-action="Index" 
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reports" ? "active" : "")">
+                <i class="bi bi-bar-chart-fill"></i>
+                <span>Reports</span>
+            </a>
+        </div>
+
+        <hr />
+
+        <!-- Account & Settings -->
+        <div class="nav-section">
+            <small class="nav-header">Account & Settings</small>
+            
+            <a asp-area="" asp-controller="Settings" asp-action="Index" 
+               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Settings" ? "active" : "")">
                 <i class="bi bi-gear-fill"></i>
                 <span>Settings</span>
             </a>
@@ -86,12 +145,11 @@
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Logout</span>
             </a>
-
         </div>
 
-        <hr />
+        @* <hr /> *@
 
-        <partial name="_LoginPartial" />
+        @* <partial name="_LoginPartial" /> *@
     </nav>
 
     <!-- TOP NAVIGATION BAR -->
