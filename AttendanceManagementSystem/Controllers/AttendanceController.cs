@@ -63,14 +63,23 @@ namespace AttendanceManagementSystem.Controllers
                 var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user!.Id);
                 if (teacher != null)
                 {
-                    // Get today's classes for the teacher
+                    var today = (int)DateTime.Today.DayOfWeek;
+
                     var todayClasses = await _context.TimeTables
                         .Include(tt => tt.Course)
                         .Include(tt => tt.Section)
-                        .Where(tt => tt.TeacherId == teacher.Id && tt.DayOfWeek == DateTime.Today.DayOfWeek)
+                        .Where(tt => tt.TeacherId == teacher.Id && (int)tt.DayOfWeek == today)
                         .ToListAsync();
 
                     ViewBag.TodayClasses = todayClasses;
+                    // Get today's classes for the teacher
+                    //var todayClasses = await _context.TimeTables
+                    //    .Include(tt => tt.Course)
+                    //    .Include(tt => tt.Section)
+                    //    .Where(tt => tt.TeacherId == teacher.Id && tt.DayOfWeek == DateTime.Today.DayOfWeek)
+                    //    .ToListAsync();
+
+                    //ViewBag.TodayClasses = todayClasses;
                 }
             }
             else if (roles.Contains("Admin"))
@@ -140,7 +149,26 @@ namespace AttendanceManagementSystem.Controllers
             }
 
             var user = await _userManager.GetUserAsync(User);
-            var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user!.Id);
+            var roles = await _userManager.GetRolesAsync(user!);
+            
+            int? teacherId = null;
+            
+            // Determine the teacher ID based on user role
+            if (roles.Contains("Teacher"))
+            {
+                var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user!.Id);
+                teacherId = teacher?.Id;
+            }
+            else if (roles.Contains("Admin"))
+            {
+                // For Admin, try to find the assigned teacher for this course and section from timetable
+                var assignedTeacher = await _context.TimeTables
+                    .Where(tt => tt.CourseId == model.CourseId && tt.SectionId == model.SectionId)
+                    .Select(tt => tt.Teacher)
+                    .FirstOrDefaultAsync();
+                
+                teacherId = assignedTeacher?.Id;
+            }
 
             // Delete existing attendance for this date
             var existingAttendance = await _context.Attendances
@@ -161,7 +189,7 @@ namespace AttendanceManagementSystem.Controllers
                     Status = student.Status,
                     Remarks = student.Remarks,
                     MarkedAt = DateTime.Now,
-                    TeacherId = teacher?.Id
+                    TeacherId = teacherId
                 };
 
                 _context.Attendances.Add(attendance);
@@ -173,18 +201,85 @@ namespace AttendanceManagementSystem.Controllers
         }
 
         // GET: Attendance/ViewStudent
-        [Authorize(Roles = "Student")]
-        public async Task<IActionResult> ViewStudent()
+        [Authorize] // Allow all authenticated users, then check roles inside
+        public async Task<IActionResult> ViewStudent(int? studentId)
         {
-            var user = await _userManager.GetUserAsync(User);
-            var student = await _context.Students
-                .Include(s => s.Section)
-                .ThenInclude(s => s!.Batch)
-                .FirstOrDefaultAsync(s => s.UserId == user!.Id);
+            Student student;
 
-            if (student == null)
+            if (User.IsInRole("Admin") && studentId.HasValue)
             {
-                TempData["Error"] = "Student record not found.";
+                // Admin can view any student by ID
+                student = await _context.Students
+                    .Include(s => s.Section)
+                    .ThenInclude(s => s.Batch)
+                    .FirstOrDefaultAsync(s => s.Id == studentId.Value);
+                
+                if (student == null)
+                {
+                    TempData["Error"] = "Student record not found.";
+                    return RedirectToAction("Index", "Students");
+                }
+            }
+            else if (User.IsInRole("Teacher"))
+            {
+                // Teachers can view students in their classes
+                var user = await _userManager.GetUserAsync(User);
+                var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user!.Id);
+                
+                if (teacher == null)
+                {
+                    TempData["Error"] = "Teacher record not found.";
+                    return RedirectToAction("Index", "Home");
+                }
+                
+                // Check if student is provided and if teacher has access to that student's classes
+                if (studentId.HasValue)
+                {
+                    student = await _context.Students
+                        .Include(s => s.Section)
+                        .ThenInclude(s => s.Batch)
+                        .FirstOrDefaultAsync(s => s.Id == studentId.Value);
+                        
+                    if (student == null)
+                    {
+                        TempData["Error"] = "Student record not found.";
+                        return RedirectToAction("Index", "Home");
+                    }
+                    
+                    // Verify teacher has classes with this student's section
+                    var hasAccess = await _context.TimeTables
+                        .AnyAsync(tt => tt.TeacherId == teacher.Id && tt.SectionId == student.SectionId);
+                        
+                    if (!hasAccess)
+                    {
+                        TempData["Error"] = "You don't have permission to view this student's attendance.";
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+                else
+                {
+                    TempData["Error"] = "Student ID is required.";
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            else if (User.IsInRole("Student"))
+            {
+                // Student can view only their own record
+                var user = await _userManager.GetUserAsync(User);
+                student = await _context.Students
+                    .Include(s => s.Section)
+                    .ThenInclude(s => s.Batch)
+                    .FirstOrDefaultAsync(s => s.UserId == user!.Id);
+                    
+                if (student == null)
+                {
+                    TempData["Error"] = "Student record not found.";
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            else
+            {
+                TempData["Error"] = "Access denied.";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -215,6 +310,7 @@ namespace AttendanceManagementSystem.Controllers
 
             return View();
         }
+
 
         // GET: Attendance/Details/5
         public async Task<IActionResult> Details(int? id)

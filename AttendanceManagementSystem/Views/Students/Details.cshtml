@@ -79,7 +79,7 @@
                             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2">
                                 <i class="bi bi-pencil me-1"></i> Edit
                             </a>
-                            <a asp-controller="Attendance" asp-action="ViewStudent" class="btn btn-success me-2">
+                            <a asp-controller="Attendance" asp-action="ViewStudent" asp-route-studentId="@Model.Id" class="btn btn-success me-2">
                                 <i class="bi bi-calendar-check me-1"></i> View Attendance
                             </a>
                             <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">

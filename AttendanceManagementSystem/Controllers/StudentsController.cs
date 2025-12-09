@@ -189,10 +189,23 @@ namespace AttendanceManagementSystem.Controllers
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var student = await _context.Students.FindAsync(id);
+            var student = await _context.Students
+                .Include(s => s.Section) // optional, if you need Section info
+                .FirstOrDefaultAsync(s => s.Id == id);
+
             if (student != null)
             {
-                // Delete associated user account
+                // Delete related attendance records first
+                var attendances = await _context.Attendances
+                    .Where(a => a.StudentId == student.Id)
+                    .ToListAsync();
+
+                if (attendances.Any())
+                {
+                    _context.Attendances.RemoveRange(attendances);
+                }
+
+                // Delete associated Identity user
                 if (!string.IsNullOrEmpty(student.UserId))
                 {
                     var user = await _userManager.FindByIdAsync(student.UserId);
@@ -202,9 +215,11 @@ namespace AttendanceManagementSystem.Controllers
                     }
                 }
 
+                // Delete the student
                 _context.Students.Remove(student);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Student deleted successfully!";
+
+                TempData["Success"] = "Student and related attendance deleted successfully!";
             }
 
             return RedirectToAction(nameof(Index));

@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<IdentityUser> SignInManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -24,8 +28,17 @@
 </head>
 <body>
 
+
     <!-- SIDEBAR NAVIGATION -->
     <nav class="sidebar" role="navigation" aria-label="Main navigation">
+        @{
+            var user = await UserManager.GetUserAsync(User);
+            var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+            bool isAdmin = roles.Contains("Admin");
+            bool isTeacher = roles.Contains("Teacher");
+            bool isStudent = roles.Contains("Student");
+        }
+
         <div class="brand">
             <i class="bi bi-journal-check"></i>
             <span>AttendanceEase</span>
@@ -52,9 +65,11 @@
         <hr />
 
         <!-- Academic Management -->
+        @if (!isStudent){
         <div class="nav-section">
             <small class="nav-header">Academic Management</small>
-            
+            @if (isAdmin)
+{
             <a asp-area="" asp-controller="Batches" asp-action="Index" 
                class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Batches" ? "active" : "")">
                 <i class="bi bi-folder2-open"></i>
@@ -66,6 +81,7 @@
                 <i class="bi bi-layout-split"></i>
                 <span>Sections</span>
             </a>
+}
 
             <a asp-area="" asp-controller="Courses" asp-action="Index" 
                class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Courses" ? "active" : "")">
@@ -81,44 +97,50 @@
         </div>
 
         <hr />
+        }
+        @if (!isStudent)
+        {
+            <!-- People Management -->
+            <div class="nav-section">
+                <small class="nav-header">People Management</small>
+                @if (isAdmin)
+                {
 
-        <!-- People Management -->
-        <div class="nav-section">
-            <small class="nav-header">People Management</small>
-            
-            <a asp-area="" asp-controller="Teachers" asp-action="Index" 
-               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teachers" ? "active" : "")">
-                <i class="bi bi-person-badge-fill"></i>
-                <span>Teachers</span>
-            </a>
+                    <a asp-area="" asp-controller="Teachers" asp-action="Index" 
+                    class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Teachers" ? "active" : "")">
+                        <i class="bi bi-person-badge-fill"></i>
+                        <span>Teachers</span>
+                    </a>
+                }
 
-            <a asp-area="" asp-controller="Students" asp-action="Index" 
-               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Students" ? "active" : "")">
-                <i class="bi bi-people-fill"></i>
-                <span>Students</span>
-            </a>
-        </div>
+                <a asp-area="" asp-controller="Students" asp-action="Index" 
+                class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Students" ? "active" : "")">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Students</span>
+                </a>
+            </div>
 
-        <hr />
+            <hr />
 
-        <!-- Attendance & Reports -->
-        <div class="nav-section">
-            <small class="nav-header">Attendance & Reports</small>
-            
-            <a asp-area="" asp-controller="Attendance" asp-action="Index" 
-               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Attendance" ? "active" : "")">
-                <i class="bi bi-calendar-check"></i>
-                <span>Attendance</span>
-            </a>
+            <!-- Attendance & Reports -->
+            <div class="nav-section">
+                <small class="nav-header">Attendance</small>
 
-            <a asp-area="" asp-controller="Reports" asp-action="Index" 
+                <a asp-area="" asp-controller="Attendance" asp-action="Index" 
+                class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Attendance" ? "active" : "")">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Attendance</span>
+                </a>
+
+                @* <a asp-area="" asp-controller="Reports" asp-action="Index" 
                class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reports" ? "active" : "")">
                 <i class="bi bi-bar-chart-fill"></i>
                 <span>Reports</span>
-            </a>
-        </div>
+            </a> *@
+            </div>
 
-        <hr />
+            <hr />
+        }
 
         <!-- Account & Settings -->
         <div class="nav-section">
@@ -157,12 +179,12 @@
         <div class="page-title">
             @ViewData["Title"]
         </div>
-        <div class="user-actions">
+        @* <div class="user-actions">
             <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn btn-outline-secondary btn-sm" aria-label="Account Settings">
                 <i class="bi bi-person-circle"></i>
                 <span>My Account</span>
             </a>
-        </div>
+        </div> *@
     </header>
 
     <!-- MAIN CONTENT AREA -->

@@ -64,12 +64,19 @@ namespace AttendanceManagementSystem.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            var today = (int)DateTime.Today.DayOfWeek;
             var todayClasses = await _context.TimeTables
-                .Include(tt => tt.Course)
-                .Include(tt => tt.Section)
-                .Where(tt => tt.TeacherId == teacher.Id && tt.DayOfWeek == DateTime.Today.DayOfWeek)
-                .OrderBy(tt => tt.StartTime)
-                .ToListAsync();
+    .Include(tt => tt.Course)
+    .Include(tt => tt.Section)
+    .Where(tt => tt.TeacherId == teacher.Id && (int)tt.DayOfWeek == today)
+    .OrderBy(tt => tt.StartTime)
+    .ToListAsync();
+            //var todayClasses = await _context.TimeTables
+            //    .Include(tt => tt.Course)
+            //    .Include(tt => tt.Section)
+            //    .Where(tt => tt.TeacherId == teacher.Id && tt.DayOfWeek == DateTime.Today.DayOfWeek)
+            //    .OrderBy(tt => tt.StartTime)
+            //    .ToListAsync();
 
             ViewBag.TodayClasses = todayClasses;
             ViewBag.TeacherName = teacher.Name;

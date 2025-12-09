@@ -1,30 +1,47 @@
 @using AttendanceManagementSystem.Models
 @{
-    ViewData["Title"] = "My Attendance";
+    ViewData["Title"] = "Student Attendance";
     var student = ViewBag.Student as Student;
     var attendanceRecords = ViewBag.AttendanceRecords as List<Attendance>;
-    var courseStats = ViewBag.CourseStats as IEnumerable<dynamic>;
+    var attendanceStats = ViewBag.AttendanceStats as IEnumerable<dynamic>;
 }
 
-<h2 class="mb-4">
-    <i class="bi bi-person-circle text-primary me-2"></i>
-    My Attendance Records
-</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="bi bi-calendar-check text-primary me-2"></i>
+        @if (User.IsInRole("Admin"))
+        {
+            <span>Student Attendance - @student?.Name</span>
+        }
+        else
+        {
+            <span>My Attendance Records</span>
+        }
+    </h2>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-controller="Students" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Students
+        </a>
+    }
+</div>
 
 <!-- Student Info -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
-        <div class="row">
+        <div class="row align-items-center">
             <div class="col-md-8">
-                <h5>@student?.Name</h5>
-                <p class="mb-0">
-                    <strong>Roll Number:</strong> @student?.RollNumber<br />
-                    <strong>Section:</strong> @student?.Section?.Batch?.Name - @student?.Section?.Name
+                <h5 class="mb-1">@student?.Name</h5>
+                <p class="mb-0 text-muted">
+                    <strong>Roll Number:</strong> 
+                    <span class="badge bg-primary me-3">@student?.RollNumber</span>
+                    <strong>Section:</strong> 
+                    <span class="badge bg-info">@student?.Section?.Batch?.Name - @student?.Section?.Name</span>
                 </p>
             </div>
             <div class="col-md-4 text-end">
-                <a asp-controller="Reports" asp-action="GeneratePDF" asp-route-studentId="@student?.Id" class="btn btn-primary">
-                    <i class="bi bi-download me-1"></i> Download Report
+                <a asp-controller="Reports" asp-action="StudentAttendance" asp-route-studentId="@student?.Id" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-pdf me-1"></i> Generate Report
                 </a>
             </div>
         </div>
@@ -36,11 +53,11 @@
     <div class="card-header bg-white border-bottom">
         <h5 class="mb-0">
             <i class="bi bi-bar-chart text-info me-2"></i>
-            Course-wise Attendance
+            Course-wise Attendance Statistics
         </h5>
     </div>
     <div class="card-body">
-        @if (courseStats != null && courseStats.Any())
+        @if (attendanceStats != null && attendanceStats.Any())
         {
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
@@ -51,18 +68,20 @@
                             <th>Present</th>
                             <th>Absent</th>
                             <th>Late</th>
-                            <th>Percentage</th>
+                            <th>Attendance Percentage</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var stat in courseStats)
+                        @foreach (var stat in attendanceStats)
                         {
                             var percentage = stat.Percentage;
                             var badgeClass = percentage >= 75 ? "bg-success" : (percentage >= 50 ? "bg-warning" : "bg-danger");
                             
                             <tr>
                                 <td><strong>@stat.CourseName</strong></td>
-                                <td>@stat.TotalClasses</td>
+                                <td>
+                                    <span class="badge bg-light text-dark">@stat.TotalClasses</span>
+                                </td>
                                 <td>
                                     <span class="badge bg-success">@stat.PresentCount</span>
                                 </td>
@@ -74,7 +93,7 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                                        <div class="progress flex-grow-1 me-2" style="height: 25px;">
                                             <div class="progress-bar @badgeClass" 
                                                  role="progressbar" 
                                                  style="width: @(percentage)%"
@@ -94,9 +113,9 @@
         }
         else
         {
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                No attendance records found.
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle me-2" style="font-size: 1.2rem;"></i>
+                No attendance statistics available for this student yet.
             </div>
         }
     </div>
@@ -107,7 +126,7 @@
     <div class="card-header bg-white border-bottom">
         <h5 class="mb-0">
             <i class="bi bi-clock-history text-primary me-2"></i>
-            Recent Attendance
+            Recent Attendance Records
         </h5>
     </div>
     <div class="card-body">
@@ -119,19 +138,51 @@
                         <tr>
                             <th>Date</th>
                             <th>Course</th>
+                            <th>Teacher</th>
                             <th>Status</th>
                             <th>Remarks</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var record in attendanceRecords)
+                        @foreach (var record in attendanceRecords.Take(20))
                         {
                             <tr>
-                                <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <strong>@record.Date.ToString("MMM dd, yyyy")</strong>
+                                    <br />
+                                    <small class="text-muted">@record.Date.ToString("dddd")</small>
+                                </td>
                                 <td>
                                     <strong>@record.Course?.CourseName</strong>
                                     <br />
                                     <small class="text-muted">@record.Course?.CourseCode</small>
+                                </td>
+                                <td>
+                                    @if (record.Teacher != null && !string.IsNullOrEmpty(record.Teacher.Name))
+                                    {
+                                        <span class="fw-medium">@record.Teacher.Name</span>
+                                        @if (!string.IsNullOrEmpty(record.Teacher.EmployeeId))
+                                        {
+                                            <br />
+                                            <small class="text-muted">ID: @record.Teacher.EmployeeId</small>
+                                        }
+                                    }
+                                    else if (record.TeacherId.HasValue)
+                                    {
+                                        <span class="text-warning">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>
+                                            Teacher ID: @record.TeacherId
+                                        </span>
+                                        <br />
+                                        <small class="text-muted">Teacher data not found</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            <i class="bi bi-person-x me-1"></i>
+                                            Not assigned
+                                        </span>
+                                    }
                                 </td>
                                 <td>
                                     @switch (record.Status)
@@ -158,18 +209,42 @@
                                             break;
                                     }
                                 </td>
-                                <td>@(string.IsNullOrEmpty(record.Remarks) ? "-" : record.Remarks)</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(record.Remarks))
+                                    {
+                                        <span>@record.Remarks</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
+            
+            @if (attendanceRecords.Count > 20)
+            {
+                <div class="text-center mt-3">
+                    <small class="text-muted">Showing latest 20 records out of @attendanceRecords.Count total records.</small>
+                </div>
+            }
         }
         else
         {
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                No recent attendance records.
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle me-2" style="font-size: 1.2rem;"></i>
+                No attendance records found for this student.
+                
+                @if (User.IsInRole("Admin"))
+                {
+                    <br />
+                    <small class="text-muted mt-2">
+                        Attendance records will appear here once teachers start marking attendance for this student's classes.
+                    </small>
+                }
             </div>
         }
     </div>

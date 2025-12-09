@@ -28,13 +28,13 @@ namespace AttendanceManagementSystem.Data
                 .HasOne(s => s.Batch)
                 .WithMany(b => b.Sections)
                 .HasForeignKey(s => s.BatchId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Student>()
                 .HasOne(s => s.Section)
                 .WithMany(sec => sec.Students)
                 .HasForeignKey(s => s.SectionId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<TimeTable>()
                 .HasOne(tt => tt.Course)
