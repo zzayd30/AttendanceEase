@@ -1,0 +1,155 @@
+@page
+@model EmailModel
+@{
+    ViewData["Title"] = "Manage Email";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="bi bi-envelope text-primary me-2"></i>
+        Manage Email
+    </h2>
+    <a asp-page="./Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to Profile
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="bi bi-info-circle me-2"></i>
+        @Model.StatusMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-envelope-check text-info me-2"></i>
+                    Email Settings
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <!-- Current Email Status -->
+                <div class="alert alert-light border mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Current Email:</strong> @Model.Email
+                            @if (Model.IsEmailConfirmed)
+                            {
+                                <span class="badge bg-success ms-2">
+                                    <i class="bi bi-check-circle me-1"></i>Verified
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning ms-2">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>Unverified
+                                </span>
+                            }
+                        </div>
+                        @if (!Model.IsEmailConfirmed)
+                        {
+                            <form asp-page-handler="SendVerificationEmail" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-send me-1"></i>Send Verification
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+
+                <!-- Change Email Form -->
+                <form asp-page-handler="ChangeEmail" method="post">
+                    <div asp-validation-summary="All" class="text-danger mb-3" role="alert"></div>
+                    
+                    <div class="form-floating mb-4">
+                        <input asp-for="Input.NewEmail" class="form-control" placeholder="name@example.com" />
+                        <label asp-for="Input.NewEmail">
+                            <i class="bi bi-envelope me-2"></i>New Email Address
+                        </label>
+                        <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Notice:</strong> Email changes are currently managed by the administrator. 
+                        Please contact support if you need to change your email address.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" disabled>
+                        <i class="bi bi-envelope-arrow-up me-2"></i>
+                        Change Email
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Email Information -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-info-circle text-info me-2"></i>
+                    Email Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Verification Status</small>
+                    <div>
+                        @if (Model.IsEmailConfirmed)
+                        {
+                            <span class="text-success">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Email is verified
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-warning">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                Email needs verification
+                            </span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="mb-0">
+                    <small class="text-muted">Security</small>
+                    <div class="small">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Email is used for account recovery
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Tips -->
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-header bg-transparent border-bottom-0">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-lightbulb text-warning me-2"></i>
+                    Email Tips
+                </h6>
+            </div>
+            <div class="card-body pt-0">
+                <ul class="mb-0 small">
+                    <li class="mb-2">Keep your email address up to date</li>
+                    <li class="mb-2">Check spam folder for verification emails</li>
+                    <li class="mb-2">Use a secure email provider</li>
+                    <li class="mb-0">Don't share your login credentials</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
