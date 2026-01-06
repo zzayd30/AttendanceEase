@@ -11,16 +11,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 
 namespace AttendanceManagementSystem.Areas.Identity.Pages.Account
 {
     public class ResetPasswordModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<ResetPasswordModel> _logger;
 
-        public ResetPasswordModel(UserManager<IdentityUser> userManager)
+        public ResetPasswordModel(UserManager<IdentityUser> userManager, ILogger<ResetPasswordModel> logger)
         {
             _userManager = userManager;
+            _logger = logger;
         }
 
         /// <summary>
@@ -68,22 +71,37 @@ namespace AttendanceManagementSystem.Areas.Identity.Pages.Account
             /// </summary>
             [Required]
             public string Code { get; set; }
-
         }
 
-        public IActionResult OnGet(string code = null)
+        public IActionResult OnGet(string code = null, string email = null)
         {
             if (code == null)
             {
+                _logger.LogWarning("Reset password accessed without code parameter");
                 return BadRequest("A code must be supplied for password reset.");
             }
-            else
+
+            if (string.IsNullOrEmpty(email))
+            {
+                _logger.LogWarning("Reset password accessed without email parameter");
+                return BadRequest("An email address must be supplied for password reset.");
+            }
+
+            try
             {
                 Input = new InputModel
                 {
-                    Code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code))
+                    Code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code)),
+                    Email = email
                 };
+
+                _logger.LogInformation("Reset password page loaded for email: {Email}", email);
                 return Page();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error decoding reset password token for email: {Email}", email);
+                return BadRequest("Invalid reset code.");
             }
         }
 
@@ -94,23 +112,39 @@ namespace AttendanceManagementSystem.Areas.Identity.Pages.Account
                 return Page();
             }
 
-            var user = await _userManager.FindByEmailAsync(Input.Email);
-            if (user == null)
+            try
             {
-                // Don't reveal that the user does not exist
-                return RedirectToPage("./ResetPasswordConfirmation");
+                _logger.LogInformation("Processing password reset for email: {Email}", Input.Email);
+
+                var user = await _userManager.FindByEmailAsync(Input.Email);
+                if (user == null)
+                {
+                    _logger.LogWarning("Password reset attempted for non-existent email: {Email}", Input.Email);
+                    // Don't reveal that the user does not exist
+                    return RedirectToPage("./ResetPasswordConfirmation");
+                }
+
+                var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("Password reset successful for user: {UserId}", user.Id);
+                    return RedirectToPage("./ResetPasswordConfirmation");
+                }
+
+                _logger.LogWarning("Password reset failed for user: {UserId}. Errors: {Errors}", 
+                    user.Id, string.Join(", ", result.Errors.Select(e => e.Description)));
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during password reset for email: {Email}", Input.Email);
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
             }
 
-            var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
-            if (result.Succeeded)
-            {
-                return RedirectToPage("./ResetPasswordConfirmation");
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
             return Page();
         }
     }

@@ -145,13 +145,7 @@
 
         <!-- Account & Settings -->
         <div class="nav-section">
-            <small class="nav-header">Account & Settings</small>
-            
-            <a asp-area="" asp-controller="Settings" asp-action="Index" 
-               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Settings" ? "active" : "")">
-                <i class="bi bi-gear-fill"></i>
-                <span>Settings</span>
-            </a>
+            <small class="nav-header">Account & Logout</small>
 
             <a asp-area="Identity" asp-page="/Account/Manage/Index" class="nav-link">
                 <i class="bi bi-person-circle"></i>

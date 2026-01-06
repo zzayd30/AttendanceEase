@@ -20,11 +20,13 @@ namespace AttendanceManagementSystem.Areas.Identity.Pages.Account
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly ILogger<ForgotPasswordModel> _logger;
 
-        public ForgotPasswordModel(UserManager<IdentityUser> userManager, IEmailSender emailSender)
+        public ForgotPasswordModel(UserManager<IdentityUser> userManager, IEmailSender emailSender, ILogger<ForgotPasswordModel> logger)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _logger = logger;
         }
 
         /// <summary>
@@ -53,27 +55,79 @@ namespace AttendanceManagementSystem.Areas.Identity.Pages.Account
         {
             if (ModelState.IsValid)
             {
+                _logger.LogInformation("Password reset requested for email: {Email}", Input.Email);
+
                 var user = await _userManager.FindByEmailAsync(Input.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                if (user == null)
                 {
-                    // Don't reveal that the user does not exist or is not confirmed
+                    _logger.LogWarning("Password reset requested for non-existent email: {Email}", Input.Email);
+                    // Don't reveal that the user does not exist
                     return RedirectToPage("./ForgotPasswordConfirmation");
                 }
 
-                // For more information on how to enable account confirmation and password reset please
-                // visit https://go.microsoft.com/fwlink/?LinkID=532713
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var callbackUrl = Url.Page(
-                    "/Account/ResetPassword",
-                    pageHandler: null,
-                    values: new { area = "Identity", code },
-                    protocol: Request.Scheme);
+                var isEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+                _logger.LogInformation("User found: {UserId}, Email confirmed: {EmailConfirmed}", user.Id, isEmailConfirmed);
 
-                await _emailSender.SendEmailAsync(
-                    Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                if (!isEmailConfirmed)
+                {
+                    _logger.LogWarning("Password reset requested for unconfirmed email: {Email}", Input.Email);
+                    // Don't reveal that the email is not confirmed
+                    return RedirectToPage("./ForgotPasswordConfirmation");
+                }
+
+                try
+                {
+                    // Generate password reset token
+                    var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    
+                    // Include both code and email in the callback URL
+                    var callbackUrl = Url.Page(
+                        "/Account/ResetPassword",
+                        pageHandler: null,
+                        values: new { area = "Identity", code = code, email = Input.Email },
+                        protocol: Request.Scheme);
+
+                    _logger.LogInformation("Sending password reset email to: {Email}", Input.Email);
+                    _logger.LogInformation("Reset URL: {CallbackUrl}", callbackUrl);
+
+                    var emailBody = $@"
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+    <h2 style='color: #007bff;'>Password Reset Request</h2>
+    <p>Hello,</p>
+    <p>You have requested to reset your password for your AttendanceEase account.</p>
+    <p>Please click the button below to reset your password:</p>
+    <div style='text-align: center; margin: 20px 0;'>
+        <a href='{HtmlEncoder.Default.Encode(callbackUrl)}' 
+           style='background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;'>
+           Reset Password
+        </a>
+    </div>
+    <p>If the button doesn't work, you can copy and paste the following link into your browser:</p>
+    <p><a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>{HtmlEncoder.Default.Encode(callbackUrl)}</a></p>
+    <p><strong>Note:</strong> This link will expire in 24 hours for security reasons.</p>
+    <p>If you didn't request this password reset, please ignore this email.</p>
+    <hr style='margin: 20px 0;'>
+    <p style='color: #666; font-size: 12px;'>
+        This email was sent from AttendanceEase. Please do not reply to this email.
+    </p>
+</div>";
+
+                    await _emailSender.SendEmailAsync(
+                        Input.Email,
+                        "Reset Your AttendanceEase Password",
+                        emailBody);
+
+                    _logger.LogInformation("Password reset email sent successfully to: {Email}", Input.Email);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send password reset email to: {Email}", Input.Email);
+                    
+                    // Add a user-friendly error message
+                    ModelState.AddModelError(string.Empty, "An error occurred while sending the reset email. Please try again later.");
+                    return Page();
+                }
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }
