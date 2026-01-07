@@ -34,4 +34,9 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\Test\" />
+    <Folder Include="wwwroot\emails\" />
+  </ItemGroup>
+
 </Project>
